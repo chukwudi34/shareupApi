@@ -24,6 +24,7 @@ final class Permissions
         'opportunity.view', 'opportunity.review', 'opportunity.publish', 'opportunity.edit',
         'refund.review', 'refund.request', 'asset.view', 'asset.manage',
         'distribution.manage', 'evidence.verify', 'supplier.request', 'payout.request',
+        'support.manage',
         'ledger.view', 'audit.view', 'notification.view', 'wallet.view',
     ];
 

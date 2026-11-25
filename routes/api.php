@@ -8,6 +8,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,10 @@ Route::middleware('api.token')->group(function () {
     Route::post('notifications/read-all', [NotificationController::class, 'readAll']);
     Route::post('notifications/{notification}/read', [NotificationController::class, 'read']);
 
+    Route::get('support/conversation', [SupportController::class, 'conversation']);
+    Route::post('support/conversation', [SupportController::class, 'store']);
+    Route::post('support/conversation/messages', [SupportController::class, 'reply']);
+
     Route::prefix('admin')->group(function () {
         Route::get('overview', [AdminController::class, 'overview'])->middleware('permission:audit.view');
 
@@ -77,6 +82,10 @@ Route::middleware('api.token')->group(function () {
         Route::get('approvals', [AdminController::class, 'approvals'])->middleware('permission:audit.view');
         Route::get('audit', [AdminController::class, 'audit'])->middleware('permission:audit.view');
         Route::get('users', [AdminController::class, 'users'])->middleware('permission:user.manage');
+
+        Route::get('support', [SupportController::class, 'adminIndex'])->middleware('permission:support.manage');
+        Route::post('support/{conversation}/messages', [SupportController::class, 'adminReply'])->middleware('permission:support.manage');
+        Route::post('support/{conversation}/close', [SupportController::class, 'adminClose'])->middleware('permission:support.manage');
 
         Route::get('assets', [AdminController::class, 'assets'])->middleware('permission:asset.manage');
         Route::post('assets/{asset}/income', [AdminController::class, 'recordIncome'])->middleware('permission:asset.manage');

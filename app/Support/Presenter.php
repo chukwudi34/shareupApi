@@ -8,6 +8,8 @@ use App\Models\Opportunity;
 use App\Models\OwnershipInterest;
 use App\Models\Participation;
 use App\Models\Refund;
+use App\Models\SupportConversation;
+use App\Models\SupportMessage;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -239,6 +241,46 @@ final class Presenter
             'opportunityTitle' => $distribution->relationLoaded('opportunity') ? $distribution->opportunity?->title : null,
             'createdAt' => self::date($distribution->created_at),
             'executedAt' => self::date($distribution->executed_at),
+        ];
+    }
+
+    public static function supportConversation(SupportConversation $conversation, bool $withMessages = false): array
+    {
+        $payload = [
+            'id' => $conversation->id,
+            'reference' => $conversation->reference,
+            'category' => $conversation->category,
+            'subject' => $conversation->subject,
+            'status' => $conversation->status,
+            'lastMessageAt' => self::date($conversation->last_message_at),
+            'createdAt' => self::date($conversation->created_at),
+            'closedAt' => self::date($conversation->closed_at),
+            'userName' => $conversation->relationLoaded('user') ? $conversation->user?->name : null,
+            'userEmail' => $conversation->relationLoaded('user') ? $conversation->user?->email : null,
+            'unread' => $conversation->relationLoaded('messages')
+                ? $conversation->messages->whereNull('read_at')->where('sender_type', 'USER')->count()
+                : 0,
+        ];
+
+        if ($withMessages) {
+            $payload['messages'] = $conversation->messages
+                ->map(fn (SupportMessage $message) => self::supportMessage($message))
+                ->values()
+                ->all();
+        }
+
+        return $payload;
+    }
+
+    public static function supportMessage(SupportMessage $message): array
+    {
+        return [
+            'id' => $message->id,
+            'senderType' => $message->sender_type,
+            'senderName' => $message->relationLoaded('sender') ? $message->sender?->name : null,
+            'body' => $message->body,
+            'readAt' => self::date($message->read_at),
+            'createdAt' => self::date($message->created_at),
         ];
     }
 
